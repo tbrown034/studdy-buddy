@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Studdy Buddy
 
-## Getting Started
+AI-powered study companion and chat assistant built with Next.js and OpenAI.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### General Chat
+Open-ended conversations with GPT-4o Mini for any topic or question.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Study Mode
+Personalized learning sessions for any topic:
+- Choose your study topic
+- Set your skill level (beginner to expert)
+- Select session type (lesson, quiz, practice or review)
+- Pick duration (10 to 60 minutes)
+- Get tailored instruction based on your needs
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Coding Mode
+Specialized coding sessions with latest tech stack:
+- **Languages**: JavaScript, TypeScript, Python, SQL
+- **Frameworks**: React 19.2, Next.js 16
+- **Backend**: Supabase, PostgreSQL, Neon
+- **Styling**: Tailwind CSS v4
+- **Session Types**: Lesson, Debug, Build, Review
+- **AI trained on 2025 documentation** for latest features
+- Interactive code examples with syntax highlighting
+- Copy-paste ready code snippets
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup
 
-## Learn More
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Create environment file:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Add your OpenAI API key to `.env.local`:
+   ```
+   OPENAI_API_KEY=sk-proj-your-key-here
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Run development server:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+6. Open [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` - General chat interface
+- `/studdy-buddy` - Study session interface (any topic)
+- `/studdy-buddy-coding` - Coding session interface (web development)
+- `/dashboard` - API usage and cost monitoring dashboard
+
+## Security & Cost Control
+
+This application includes comprehensive safeguards:
+- Rate limiting (20 requests per minute)
+- Token limits (1000 max per response)
+- Context truncation (20 messages max)
+- Request validation
+- Usage logging with cost estimates
+
+See `SECURITY.md` for detailed information.
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- OpenAI API (GPT-4o Mini)
+- Lucide React (icons)
+
+## Project Rules
+
+1. **API Safety**: All requests are validated, rate limited and monitored
+2. **Writing Style**: No oxford commas
+3. **UI Components**: Lucide icons only (no emojis)
+4. **Development**: KISS principle
+
+## Documentation
+
+- `claude.md` - Full project documentation and status
+- `SECURITY.md` - Security measures and cost analysis
+- `.env.example` - Environment variable template
+
+## Cost Estimates
+
+With current safeguards:
+- Single message: ~$0.0003
+- Typical conversation: ~$0.001-0.003
+- Development usage: ~$1-5/month
+
+See `SECURITY.md` for detailed cost breakdown.
+
+## License
+
+MIT
