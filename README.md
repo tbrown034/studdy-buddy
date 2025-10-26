@@ -103,3 +103,4 @@ See `SECURITY.md` for detailed cost breakdown.
 ## License
 
 MIT
+# studdy-buddy
