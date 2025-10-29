@@ -64,16 +64,16 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="text-zinc-600 dark:text-zinc-400">Loading dashboard...</div>
+      <div className="flex min-h-dvh items-center justify-center bg-white dark:bg-black">
+        <div className="font-mono text-zinc-600 dark:text-zinc-400">[loading...]</div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="text-red-600 dark:text-red-400">{error || 'No data available'}</div>
+      <div className="flex min-h-dvh items-center justify-center bg-white dark:bg-black">
+        <div className="font-mono text-red-600 dark:text-red-400">[error: {error || 'no data'}]</div>
       </div>
     );
   }
@@ -84,147 +84,157 @@ export default function DashboardPage() {
     : '0';
 
   return (
-    <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-dvh bg-white dark:bg-black">
       <Header />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-medium text-zinc-900 dark:text-zinc-50">
-            Dashboard
+        {/* Title */}
+        <div className="mb-8 pb-6 border-b-2 border-black dark:border-white">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2 font-mono">
+            [stats]
           </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-            API usage and request monitoring
+          <p className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+            api usage and request monitoring
           </p>
         </div>
+
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid grid-cols-1 gap-px sm:grid-cols-2 lg:grid-cols-4 mb-8 bg-black dark:bg-white border-2 border-black dark:border-white">
           {/* Total Requests */}
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Total Requests</p>
-                <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 mt-2">
+          <div className="bg-white dark:bg-black p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3">
+                  total requests
+                </p>
+                <p className="text-4xl font-bold font-mono text-black dark:text-white mb-2">
                   {stats.totalRequests}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
+                <p className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
                   {stats.requestsToday} today
                 </p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950">
-                <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="shrink-0">
+                <Activity className="h-6 w-6 text-black dark:text-white" />
               </div>
             </div>
           </div>
 
           {/* Total Cost */}
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Total Cost</p>
-                <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 mt-2">
+          <div className="bg-white dark:bg-black p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3">
+                  total cost
+                </p>
+                <p className="text-4xl font-bold font-mono text-black dark:text-white mb-2">
                   ${stats.totalCost.toFixed(4)}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
+                <p className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
                   ${stats.costToday.toFixed(4)} today
                 </p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-950">
-                <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <div className="shrink-0">
+                <DollarSign className="h-6 w-6 text-black dark:text-white" />
               </div>
             </div>
           </div>
 
           {/* Total Tokens */}
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Total Tokens</p>
-                <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 mt-2">
+          <div className="bg-white dark:bg-black p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3">
+                  total tokens
+                </p>
+                <p className="text-4xl font-bold font-mono text-black dark:text-white mb-2">
                   {stats.totalTokens.toLocaleString()}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
+                <p className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
                   {stats.tokensToday.toLocaleString()} today
                 </p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950">
-                <Zap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="shrink-0">
+                <Zap className="h-6 w-6 text-black dark:text-white" />
               </div>
             </div>
           </div>
 
           {/* Success Rate */}
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Success Rate</p>
-                <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 mt-2">
+          <div className="bg-white dark:bg-black p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3">
+                  success rate
+                </p>
+                <p className="text-4xl font-bold font-mono text-black dark:text-white mb-2">
                   {successRate}%
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
+                <p className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
                   {stats.failedRequests} failed
                 </p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-950">
-                <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              <div className="shrink-0">
+                <TrendingUp className="h-6 w-6 text-black dark:text-white" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Activity Chart */}
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 mb-8">
-          <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-4">
-            Activity (Last Hour)
+        <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-6 mb-8">
+          <h2 className="font-mono font-bold text-lg mb-6">
+            [activity - last hour]
           </h2>
-          <div className="flex items-end gap-1 h-32">
+          <div className="flex items-end gap-1 h-32 border-2 border-black dark:border-white p-2">
             {activity.slice(-30).map((item, idx) => {
               const maxCount = Math.max(...activity.map(a => a.count));
               const height = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
               return (
                 <div
                   key={idx}
-                  className="flex-1 bg-blue-500 dark:bg-blue-600 rounded-t hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors"
+                  className="flex-1 bg-black dark:bg-white hover:opacity-70 transition-opacity"
                   style={{ height: `${height}%`, minHeight: item.count > 0 ? '4px' : '0' }}
                   title={`${item.timestamp}: ${item.count} requests`}
                 />
               );
             })}
           </div>
-          <div className="flex justify-between mt-2 text-xs text-zinc-500">
+          <div className="flex justify-between mt-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">
             <span>30 min ago</span>
-            <span>Now</span>
+            <span>now</span>
           </div>
         </div>
 
         {/* Recent Requests */}
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-          <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-4">
-            Recent Requests
+        <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-6 mb-8">
+          <h2 className="font-mono font-bold text-lg mb-6">
+            [recent requests]
           </h2>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full font-mono text-sm">
               <thead>
-                <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                  <th className="text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 pb-3">
-                    Time
+                <tr className="border-b-2 border-black dark:border-white">
+                  <th className="text-left text-xs font-bold uppercase tracking-wider pb-3">
+                    time
                   </th>
-                  <th className="text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 pb-3">
-                    Status
+                  <th className="text-left text-xs font-bold uppercase tracking-wider pb-3">
+                    status
                   </th>
-                  <th className="text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 pb-3">
-                    Tokens
+                  <th className="text-left text-xs font-bold uppercase tracking-wider pb-3">
+                    tokens
                   </th>
-                  <th className="text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 pb-3">
-                    Cost
+                  <th className="text-left text-xs font-bold uppercase tracking-wider pb-3">
+                    cost
                   </th>
-                  <th className="text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 pb-3">
-                    IP
+                  <th className="text-left text-xs font-bold uppercase tracking-wider pb-3">
+                    ip
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                 {logs.slice(0, 20).map((log) => (
-                  <tr key={log.id} className="text-sm">
+                  <tr key={log.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
                     <td className="py-3 text-zinc-600 dark:text-zinc-400">
                       <div className="flex items-center gap-2">
                         <Clock className="h-3.5 w-3.5" />
@@ -235,22 +245,22 @@ export default function DashboardPage() {
                       {log.success ? (
                         <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
                           <CheckCircle className="h-3.5 w-3.5" />
-                          Success
+                          ok
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400">
                           <AlertCircle className="h-3.5 w-3.5" />
-                          Failed
+                          fail
                         </span>
                       )}
                     </td>
-                    <td className="py-3 text-zinc-900 dark:text-zinc-50 font-mono">
+                    <td className="py-3 text-black dark:text-white">
                       {log.totalTokens}
                     </td>
-                    <td className="py-3 text-zinc-900 dark:text-zinc-50 font-mono">
+                    <td className="py-3 text-black dark:text-white">
                       ${log.cost.toFixed(6)}
                     </td>
-                    <td className="py-3 text-zinc-600 dark:text-zinc-400 font-mono text-xs">
+                    <td className="py-3 text-zinc-600 dark:text-zinc-400 text-xs">
                       {log.ip}
                     </td>
                   </tr>
@@ -261,22 +271,28 @@ export default function DashboardPage() {
         </div>
 
         {/* Additional Stats */}
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">Avg Tokens/Request</p>
-            <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mt-1">
+        <div className="grid grid-cols-1 gap-px sm:grid-cols-3 bg-black dark:bg-white border-2 border-black dark:border-white">
+          <div className="bg-white dark:bg-black p-6">
+            <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2">
+              avg tokens/request
+            </p>
+            <p className="text-2xl font-bold font-mono text-black dark:text-white">
               {stats.averageTokensPerRequest.toFixed(0)}
             </p>
           </div>
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">Requests/Minute</p>
-            <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mt-1">
+          <div className="bg-white dark:bg-black p-6">
+            <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2">
+              requests/minute
+            </p>
+            <p className="text-2xl font-bold font-mono text-black dark:text-white">
               {stats.requestsPerMinute}
             </p>
           </div>
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">Model</p>
-            <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mt-1">
+          <div className="bg-white dark:bg-black p-6">
+            <p className="font-mono text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2">
+              model
+            </p>
+            <p className="text-2xl font-bold font-mono text-black dark:text-white">
               gpt-4o-mini
             </p>
           </div>

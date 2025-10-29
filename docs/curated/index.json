@@ -1,0 +1,103 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-28",
+  "description": "Minimal, brutalist documentation - core concepts only",
+  "docs": [
+    {
+      "id": "react",
+      "name": "React",
+      "version": "19.2",
+      "file": "react.md",
+      "icon": "RX",
+      "topics": [
+        "Components",
+        "Props & State",
+        "Effects & Refs",
+        "Context",
+        "Custom Hooks",
+        "Server Components",
+        "Actions",
+        "use Hook"
+      ]
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "version": "16",
+      "file": "nextjs.md",
+      "icon": "NX",
+      "topics": [
+        "App Router",
+        "Server Components",
+        "Client Components",
+        "Server Actions",
+        "Dynamic Routes",
+        "Layouts",
+        "Loading & Errors",
+        "Metadata",
+        "Data Fetching",
+        "Streaming",
+        "Route Handlers",
+        "Middleware"
+      ]
+    },
+    {
+      "id": "tailwind",
+      "name": "Tailwind CSS",
+      "version": "4.0",
+      "file": "tailwind.md",
+      "icon": "TW",
+      "topics": [
+        "Utility Classes",
+        "Responsive Design",
+        "Dark Mode",
+        "Hover & Focus",
+        "Flexbox & Grid",
+        "Spacing & Typography",
+        "Colors & Borders",
+        "Transitions",
+        "Custom Properties"
+      ]
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "version": "5.9",
+      "file": "typescript.md",
+      "icon": "TS",
+      "topics": [
+        "Basic Types",
+        "Interfaces",
+        "Type Aliases",
+        "Union Types",
+        "Functions",
+        "Generics",
+        "Type Guards",
+        "Utility Types",
+        "Classes",
+        "Async/Await"
+      ]
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "version": "3.12",
+      "file": "python.md",
+      "icon": "PY",
+      "topics": [
+        "Variables & Types",
+        "Functions",
+        "Lists & Dicts",
+        "List Comprehensions",
+        "Classes",
+        "Error Handling",
+        "File Operations",
+        "Decorators",
+        "Generators",
+        "Async/Await",
+        "Dataclasses",
+        "Pattern Matching"
+      ]
+    }
+  ]
+}

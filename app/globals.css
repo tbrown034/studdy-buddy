@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #0a0a0a;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --border: #e5e5e5;
+  --background: #ffffff;
+  --foreground: #000000;
+  --accent: #000000;
+  --accent-hover: #333333;
+  --border: #000000;
   --card: #ffffff;
+  --grid: #e5e5e5;
+  --muted: #666666;
 }
 
 @theme inline {
@@ -18,22 +20,33 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #fafafa;
-    --border: #262626;
-    --card: #171717;
+    --background: #000000;
+    --foreground: #ffffff;
+    --border: #ffffff;
+    --card: #000000;
+    --grid: #1a1a1a;
+    --muted: #999999;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-geist-mono), 'Courier New', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
-/* Fix prose styles for better readability */
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-geist-mono), 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Fix prose styles */
 .prose {
   --tw-prose-body: inherit;
   --tw-prose-headings: inherit;
@@ -43,14 +56,14 @@ body {
   --tw-prose-pre-bg: transparent;
 }
 
-/* Smooth transitions */
+/* Minimal transitions */
 * {
-  @apply transition-colors duration-200;
+  transition: none;
 }
 
 button,
 a {
-  @apply transition-all duration-200;
+  @apply transition-colors duration-150;
 }
 
 /* Focus states */
@@ -58,30 +71,160 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+  @apply outline-none ring-2 ring-black dark:ring-white ring-offset-0;
 }
 
-/* Refined shadows */
-.shadow-refined {
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+/* Hard shadows */
+.shadow-brutal {
+  box-shadow: 4px 4px 0 0 rgb(0 0 0);
 }
 
-.shadow-refined-lg {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-}
-
-/* Subtle animations */
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (prefers-color-scheme: dark) {
+  .shadow-brutal {
+    box-shadow: 4px 4px 0 0 rgb(255 255 255);
   }
 }
 
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+.shadow-brutal-sm {
+  box-shadow: 2px 2px 0 0 rgb(0 0 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  .shadow-brutal-sm {
+    box-shadow: 2px 2px 0 0 rgb(255 255 255);
+  }
+}
+
+/* Grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Flashcard 3D Flip */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Monospace selection */
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Crosshair cursor for interactive elements */
+button,
+a,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+select {
+  cursor: crosshair;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
+  cursor: text;
+}
+
+/* Brutalist Documentation Prose */
+.prose-brutal {
+  font-family: var(--font-geist-mono), 'Courier New', monospace;
+  max-width: none;
+}
+
+.prose-brutal h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--foreground);
+  padding-bottom: 0.5rem;
+}
+
+.prose-brutal h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose-brutal h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-brutal p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.prose-brutal code {
+  background: var(--grid);
+  padding: 0.2em 0.4em;
+  border: 1px solid var(--border);
+  font-size: 0.9em;
+}
+
+.prose-brutal pre {
+  background: var(--grid);
+  border: 2px solid var(--border);
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose-brutal pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.prose-brutal ul,
+.prose-brutal ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.prose-brutal li {
+  margin-bottom: 0.5rem;
+}
+
+.prose-brutal a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.prose-brutal a:hover {
+  opacity: 0.7;
+}
+
+.prose-brutal hr {
+  border: none;
+  border-top: 2px solid var(--border);
+  margin: 2rem 0;
+}
+
+.prose-brutal strong {
+  font-weight: 700;
 }

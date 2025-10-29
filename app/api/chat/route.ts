@@ -112,53 +112,78 @@ export async function POST(req: Request) {
     // Truncate context to prevent unbounded growth
     const truncatedMessages = truncateContext(messages);
 
-    // Call OpenAI with safeguards
-    const completion = await openai.chat.completions.create({
+    // Call OpenAI with streaming enabled
+    const stream = await openai.chat.completions.create({
       model: CONFIG.MODEL,
       messages: truncatedMessages,
       max_tokens: CONFIG.MAX_TOKENS,
       temperature: 0.7,
-      stream: false,
+      stream: true,
     });
 
-    const responseMessage = completion.choices[0].message;
-    const usage = completion.usage;
+    // Create a readable stream for the response
+    const encoder = new TextEncoder();
+    let fullContent = '';
+    let promptTokens = 0;
+    let completionTokens = 0;
 
-    // Calculate cost
-    const cost = usage?.total_tokens
-      ? (usage.prompt_tokens * 0.00015) / 1000 + (usage.completion_tokens * 0.0006) / 1000
-      : 0;
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || '';
+            if (content) {
+              fullContent += content;
+              completionTokens += 1; // Rough estimate
+              controller.enqueue(encoder.encode(content));
+            }
+          }
 
-    // Track usage
-    usageTracker.addLog({
-      endpoint: '/api/chat',
-      model: CONFIG.MODEL,
-      promptTokens: usage?.prompt_tokens || 0,
-      completionTokens: usage?.completion_tokens || 0,
-      totalTokens: usage?.total_tokens || 0,
-      cost,
-      ip: rateLimitKey,
-      success: true,
+          // Estimate tokens (rough approximation)
+          promptTokens = Math.ceil(
+            truncatedMessages.reduce((acc, msg) => acc + msg.content.length, 0) / 4
+          );
+
+          // Calculate cost
+          const cost = (promptTokens * 0.00015) / 1000 + (completionTokens * 0.0006) / 1000;
+
+          // Track usage
+          usageTracker.addLog({
+            endpoint: '/api/chat',
+            model: CONFIG.MODEL,
+            promptTokens,
+            completionTokens,
+            totalTokens: promptTokens + completionTokens,
+            cost,
+            ip: rateLimitKey,
+            success: true,
+          });
+
+          // Log usage for monitoring
+          console.log('[API Usage]', {
+            timestamp: new Date().toISOString(),
+            model: CONFIG.MODEL,
+            promptTokens,
+            completionTokens,
+            totalTokens: promptTokens + completionTokens,
+            estimatedCost: cost.toFixed(6),
+          });
+
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
     });
 
-    // Log usage for monitoring
-    console.log('[API Usage]', {
-      timestamp: new Date().toISOString(),
-      model: CONFIG.MODEL,
-      promptTokens: usage?.prompt_tokens,
-      completionTokens: usage?.completion_tokens,
-      totalTokens: usage?.total_tokens,
-      estimatedCost: cost.toFixed(6),
+    return new Response(readableStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-RateLimit-Remaining': remaining.toString(),
+      },
     });
-
-    return NextResponse.json(
-      { message: responseMessage },
-      {
-        headers: {
-          'X-RateLimit-Remaining': remaining.toString(),
-        },
-      }
-    );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

@@ -5,7 +5,7 @@
 ### Model Configuration
 - **Model**: GPT-4o Mini (gpt-4o-mini)
 - **Provider**: OpenAI
-- **Stream**: Disabled (batch responses)
+- **Stream**: Enabled (real-time streaming responses)
 
 ### Cost Analysis
 **GPT-4o Mini Pricing** (as of January 2025):
@@ -27,17 +27,19 @@
 **Implemented**:
 - API key in .env.local (gitignored)
 - Server-side API route only
-- Basic error handling
-
-**Missing (HIGH PRIORITY)**:
-- Rate limiting
-- Request size limits
-- Token counting
-- Usage monitoring
-- Cost caps
-- IP-based throttling
-- Authentication
+- Comprehensive error handling
+- Rate limiting (20 requests per minute per IP)
+- Request size limits (2000 chars per message)
+- Token counting and usage tracking
+- Context window management (max 20 messages)
 - Request validation
+- Streaming responses for better UX
+
+**Missing (MEDIUM PRIORITY)**:
+- Cost caps and alerts
+- Authentication (public access currently)
+- Database-backed usage tracking
+- Request queue management
 
 ### Security Status
 **Secure**:
@@ -118,27 +120,31 @@ KISS (Keep It Simple Stupid) - when in doubt choose the simpler solution.
 ```
 app/
 ├── api/
-│   ├── chat/route.ts      # Chat API endpoint (PROTECTED)
+│   ├── chat/route.ts      # Chat API endpoint (streaming enabled)
 │   └── dashboard/route.ts # Dashboard data endpoint
 ├── components/            # UI components
+│   ├── wizard-flow.tsx    # Step-by-step wizard component
 │   ├── loading-spinner.tsx
-│   └── markdown-message.tsx
-├── dashboard/page.tsx     # Usage monitoring dashboard
+│   ├── markdown-message.tsx
+│   └── header.tsx
+├── hooks/
+│   └── use-chat-stream.ts # Streaming chat hook
+├── stats/page.tsx         # Usage monitoring dashboard
+├── home/page.tsx          # Landing page
 ├── page.tsx               # General chat interface
-├── studdy-buddy/
-│   └── page.tsx           # Study session interface
-├── studdy-buddy-coding/
-│   └── page.tsx           # Coding session interface
+├── study/page.tsx         # Study session with wizard
+├── code/page.tsx          # Coding session with wizard
 ├── layout.tsx             # Root layout
 ├── error.tsx              # Error boundary
 ├── loading.tsx            # Loading state
 └── globals.css            # Styles
 
 lib/
-└── usage-tracker.ts       # In-memory usage tracking
+├── usage-tracker.ts       # In-memory usage tracking
+└── diagnostic-questions.json  # 90+ curated quiz questions for diagnostic fallback
 
 .env.local                 # API key (GITIGNORED)
-claude.md                  # This file
+CLAUDE.md                  # This file (project documentation)
 SECURITY.md                # Security documentation
 ```
 
@@ -150,31 +156,48 @@ SECURITY.md                # Security documentation
 - General purpose AI assistant
 - Rate limited and monitored
 
-### Study Mode (/studdy-buddy)
+### Study Mode (/study)
+- **Step-by-step wizard interface** for intuitive session setup
 - Structured learning sessions for any topic
-- Topic-based conversations
 - Configurable parameters:
   - Study topic and details
   - Skill level (beginner to expert)
   - Session type (lesson, quiz, practice, review)
   - Duration (10-60 minutes)
-- Context-aware tutoring
-- Personalized instruction
+- **Review step** showing session summary and AI instructions
+- **Transparent prompt engineering** - users can see exactly how the AI is instructed
+- Context-aware tutoring with streaming responses
+- Personalized instruction based on skill level
 - All safeguards still apply
 
-### Coding Mode (/studdy-buddy-coding)
+### Coding Mode (/code)
+- **Step-by-step wizard interface** optimized for coding sessions
 - Specialized web development sessions
 - AI trained on latest 2025 documentation
 - Technology stack selection:
-  - Languages: JavaScript, TypeScript, Python, SQL
+  - Languages: JavaScript, TypeScript, Python, React, LLM, General
   - Frameworks: React 19.2, Next.js 16, or none
   - Backend: Supabase, PostgreSQL, Neon, or none
   - Always includes Tailwind CSS v4
+- **Skill Level Options:**
+  - Beginner: Start with fundamentals
+  - Intermediate: Build on existing knowledge
+  - Advanced: Dive into complex topics
+  - **Diagnostic Test**: Interactive 5-question assessment to determine your level
+- **Diagnostic Test Features:**
+  - Beautiful interactive quiz interface with clickable buttons
+  - Visual progress tracking with animated progress bars
+  - 5 carefully selected questions (2 easy, 2 medium, 1 hard)
+  - Immediate feedback with explanations
+  - Automatic level recommendation based on performance
+  - **Automatic AI fallback**: Tries AI-generated questions first, falls back to 90+ curated questions on API failure
+  - Zero cost when using fallback questions
+  - Works offline with local question bank
 - Session types:
   - Lesson: Learn new coding concepts
-  - Debug: Fix code issues and errors
-  - Build: Create projects step-by-step
-  - Review: Code review and best practices
+  - Practice: Work through coding exercises
+  - Flashcards: Quiz on key concepts
+  - Tests: Assess knowledge with questions
 - Features latest 2025 tech:
   - Next.js 16: Turbopack, React 19.2, Server Actions
   - React 19.2: Server Components, Actions API, use hook
@@ -185,9 +208,41 @@ SECURITY.md                # Security documentation
 - Copy buttons on all code blocks
 - All safeguards still apply
 
+## Recent UX Improvements (October 2025)
+
+### Wizard Flow Interface
+- **Multi-step configuration** replaces overwhelming single-page forms
+- Visual progress bar with step indicators
+- Back/forward navigation with smart validation
+- Mobile-optimized responsive design
+- Quick suggestions and popular topics
+- Visual card selection for better UX
+
+### Prompt Transparency
+- **Review step** shows session summary before starting
+- Users can view the exact AI instructions
+- Toggle to show/hide system prompt
+- Builds trust and educates users about prompt engineering
+- Helps users understand how their choices affect AI behavior
+
+### Performance Optimizations
+- **Streaming responses** for instant perceived feedback
+- Word-by-word text rendering like ChatGPT
+- Reduced time-to-first-token perception
+- Smooth animations and transitions
+- Optimistic UI updates
+
+### Benefits
+- Less overwhelming for new users
+- Better mobile experience
+- Increased transparency
+- Faster perceived performance
+- Educational about AI prompt engineering
+- More engaging step-by-step flow
+
 ## Dependencies
 - next: 16.0.0
-- openai: latest
+- openai: latest (with streaming support)
 - lucide-react: latest
 - react: 19.2.0
 - tailwindcss: 4.x

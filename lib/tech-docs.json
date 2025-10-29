@@ -1,0 +1,262 @@
+{
+  "javascript": {
+    "name": "JavaScript",
+    "version": "ES2025+",
+    "icon": "JS",
+    "color": "#f7df1e",
+    "resources": [
+      {
+        "title": "MDN JavaScript Reference",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
+        "description": "Comprehensive JS documentation"
+      },
+      {
+        "title": "JavaScript.info",
+        "url": "https://javascript.info/",
+        "description": "Modern JavaScript tutorial"
+      },
+      {
+        "title": "ES2024 Features",
+        "url": "https://github.com/tc39/proposals/blob/main/finished-proposals.md",
+        "description": "Latest ECMAScript proposals"
+      }
+    ]
+  },
+  "typescript": {
+    "name": "TypeScript",
+    "version": "5.9",
+    "icon": "TS",
+    "color": "#3178c6",
+    "resources": [
+      {
+        "title": "TypeScript Handbook",
+        "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+        "description": "Official TypeScript documentation"
+      },
+      {
+        "title": "TypeScript Playground",
+        "url": "https://www.typescriptlang.org/play",
+        "description": "Try TypeScript in the browser"
+      },
+      {
+        "title": "Type Challenges",
+        "url": "https://github.com/type-challenges/type-challenges",
+        "description": "Practice TypeScript types"
+      }
+    ]
+  },
+  "python": {
+    "name": "Python",
+    "version": "3.12+",
+    "icon": "PY",
+    "color": "#3776ab",
+    "resources": [
+      {
+        "title": "Python Documentation",
+        "url": "https://docs.python.org/3/",
+        "description": "Official Python 3 docs"
+      },
+      {
+        "title": "Python Tutorial",
+        "url": "https://docs.python.org/3/tutorial/",
+        "description": "Official Python tutorial"
+      },
+      {
+        "title": "Real Python",
+        "url": "https://realpython.com/",
+        "description": "Python tutorials and articles"
+      }
+    ]
+  },
+  "react": {
+    "name": "React",
+    "version": "19.2",
+    "icon": "RX",
+    "color": "#61dafb",
+    "resources": [
+      {
+        "title": "React 19 Documentation",
+        "url": "https://react.dev/",
+        "description": "Official React docs with hooks and server components"
+      },
+      {
+        "title": "React Reference",
+        "url": "https://react.dev/reference/react",
+        "description": "Complete React API reference"
+      },
+      {
+        "title": "React Patterns",
+        "url": "https://www.patterns.dev/react",
+        "description": "React design patterns"
+      }
+    ]
+  },
+  "nextjs": {
+    "name": "Next.js",
+    "version": "16",
+    "icon": "NX",
+    "color": "#000000",
+    "resources": [
+      {
+        "title": "Next.js 16 Documentation",
+        "url": "https://nextjs.org/docs",
+        "description": "Official Next.js documentation"
+      },
+      {
+        "title": "App Router Guide",
+        "url": "https://nextjs.org/docs/app",
+        "description": "Next.js App Router documentation"
+      },
+      {
+        "title": "Next.js Examples",
+        "url": "https://github.com/vercel/next.js/tree/canary/examples",
+        "description": "Official Next.js examples"
+      }
+    ]
+  },
+  "tailwind": {
+    "name": "Tailwind CSS",
+    "version": "4.0",
+    "icon": "TW",
+    "color": "#06b6d4",
+    "resources": [
+      {
+        "title": "Tailwind CSS v4 Documentation",
+        "url": "https://tailwindcss.com/docs",
+        "description": "Official Tailwind CSS v4 docs"
+      },
+      {
+        "title": "Tailwind UI Components",
+        "url": "https://tailwindui.com/components",
+        "description": "Pre-built Tailwind components"
+      },
+      {
+        "title": "Tailwind Play",
+        "url": "https://play.tailwindcss.com/",
+        "description": "Try Tailwind in the browser"
+      }
+    ]
+  },
+  "ai": {
+    "name": "AI & LLMs",
+    "version": "GPT-4+",
+    "icon": "AI",
+    "color": "#10a37f",
+    "resources": [
+      {
+        "title": "OpenAI API Documentation",
+        "url": "https://platform.openai.com/docs/introduction",
+        "description": "Official OpenAI API docs"
+      },
+      {
+        "title": "Anthropic Claude Docs",
+        "url": "https://docs.anthropic.com/",
+        "description": "Claude API documentation"
+      },
+      {
+        "title": "LangChain Documentation",
+        "url": "https://js.langchain.com/docs/",
+        "description": "LangChain framework docs"
+      },
+      {
+        "title": "Prompt Engineering Guide",
+        "url": "https://www.promptingguide.ai/",
+        "description": "Comprehensive prompting guide"
+      },
+      {
+        "title": "Hugging Face Documentation",
+        "url": "https://huggingface.co/docs",
+        "description": "Open-source AI models and datasets"
+      },
+      {
+        "title": "OpenAI Cookbook",
+        "url": "https://cookbook.openai.com/",
+        "description": "Practical examples and guides for OpenAI APIs"
+      }
+    ]
+  },
+  "supabase": {
+    "name": "Supabase",
+    "version": "Latest",
+    "icon": "SB",
+    "color": "#3ecf8e",
+    "resources": [
+      {
+        "title": "Supabase Documentation",
+        "url": "https://supabase.com/docs",
+        "description": "Official Supabase docs"
+      },
+      {
+        "title": "Supabase JavaScript Client",
+        "url": "https://supabase.com/docs/reference/javascript/introduction",
+        "description": "JavaScript client library reference"
+      },
+      {
+        "title": "Supabase Examples",
+        "url": "https://github.com/supabase/supabase/tree/master/examples",
+        "description": "Official Supabase examples"
+      }
+    ]
+  },
+  "nodejs": {
+    "name": "Node.js",
+    "version": "22+",
+    "icon": "NODE",
+    "color": "#68a063",
+    "resources": [
+      {
+        "title": "Node.js Documentation",
+        "url": "https://nodejs.org/docs/latest/api/",
+        "description": "Official Node.js API reference"
+      },
+      {
+        "title": "Node.js Guides",
+        "url": "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs",
+        "description": "Getting started with Node.js"
+      },
+      {
+        "title": "npm Documentation",
+        "url": "https://docs.npmjs.com/",
+        "description": "Package manager documentation"
+      }
+    ]
+  },
+  "general": {
+    "name": "General Resources",
+    "version": "2025",
+    "icon": "{}",
+    "color": "#000000",
+    "resources": [
+      {
+        "title": "MDN Web Docs",
+        "url": "https://developer.mozilla.org/",
+        "description": "Web development reference"
+      },
+      {
+        "title": "Web.dev",
+        "url": "https://web.dev/",
+        "description": "Modern web development guides"
+      },
+      {
+        "title": "Can I Use",
+        "url": "https://caniuse.com/",
+        "description": "Browser compatibility tables"
+      },
+      {
+        "title": "DevDocs",
+        "url": "https://devdocs.io/",
+        "description": "All-in-one API documentation"
+      },
+      {
+        "title": "Stack Overflow",
+        "url": "https://stackoverflow.com/",
+        "description": "Q&A platform for developers"
+      },
+      {
+        "title": "GitHub Docs",
+        "url": "https://docs.github.com/",
+        "description": "Git, GitHub and version control"
+      }
+    ]
+  }
+}

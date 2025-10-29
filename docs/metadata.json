@@ -1,0 +1,75 @@
+{
+  "lastUpdated": "2025-10-28",
+  "version": "1.0.0",
+  "sources": {
+    "react": {
+      "name": "React",
+      "version": "19.2.0",
+      "repo": "https://github.com/reactjs/react.dev",
+      "docsPath": "src/content",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    },
+    "nextjs": {
+      "name": "Next.js",
+      "version": "16.0.0",
+      "repo": "https://github.com/vercel/next.js",
+      "docsPath": "docs",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    },
+    "tailwind": {
+      "name": "Tailwind CSS",
+      "version": "4.0.0",
+      "repo": "https://github.com/tailwindlabs/tailwindcss.com",
+      "docsPath": "src/pages/docs",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    },
+    "nodejs": {
+      "name": "Node.js",
+      "version": "23.0.0",
+      "repo": "https://github.com/nodejs/node",
+      "docsPath": "doc/api",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    },
+    "pnpm": {
+      "name": "pnpm",
+      "version": "9.0.0",
+      "repo": "https://github.com/pnpm/pnpm.io",
+      "docsPath": "docs",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    },
+    "typescript": {
+      "name": "TypeScript",
+      "version": "5.9.0",
+      "repo": "https://github.com/microsoft/TypeScript-Website",
+      "docsPath": "packages/documentation/copy/en",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    },
+    "python": {
+      "name": "Python",
+      "version": "3.12.0",
+      "repo": "https://github.com/python/cpython",
+      "docsPath": "Doc",
+      "lastFetch": null,
+      "fileCount": 0,
+      "status": "pending"
+    }
+  },
+  "notes": [
+    "Run 'bash docs/fetch-docs.sh' to fetch all documentation",
+    "Docs are pulled from official repositories",
+    "Files are in Markdown/MDX/RST format",
+    "Use for AI context injection or reference"
+  ]
+}

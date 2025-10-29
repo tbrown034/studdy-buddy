@@ -2,10 +2,8 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
 import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
-import 'highlight.js/styles/github-dark.css';
 
 export function MarkdownMessage({ content, isUser }: { content: string; isUser: boolean }) {
   return (
@@ -16,11 +14,17 @@ export function MarkdownMessage({ content, isUser }: { content: string; isUser: 
     }`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
         components={{
-          code({ node, className, children, ...props }) {
+          code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
-            const isInline = !match;
+            const isInline = inline || !match;
+
+            // Convert children to string properly
+            const codeString = Array.isArray(children)
+              ? children.map(child =>
+                  typeof child === 'string' ? child : String(child)
+                ).join('')
+              : String(children || '');
 
             if (isInline) {
               return (
@@ -32,14 +36,14 @@ export function MarkdownMessage({ content, isUser }: { content: string; isUser: 
                   }`}
                   {...props}
                 >
-                  {children}
+                  {codeString}
                 </code>
               );
             }
 
             return (
               <CodeBlock
-                code={String(children).replace(/\n$/, '')}
+                code={codeString.replace(/\n$/, '')}
                 language={match?.[1] || 'text'}
                 isUser={isUser}
               />

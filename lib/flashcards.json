@@ -1,0 +1,314 @@
+{
+  "javascript": [
+    {
+      "id": "js-fc-001",
+      "front": "What is the difference between `let`, `const` and `var`?",
+      "back": "`let` and `const` are block-scoped, while `var` is function-scoped. `const` cannot be reassigned, but `let` can. Modern code should prefer `const` by default."
+    },
+    {
+      "id": "js-fc-002",
+      "front": "What is a closure?",
+      "back": "A closure is a function that has access to variables in its outer (enclosing) scope, even after the outer function has finished executing."
+    },
+    {
+      "id": "js-fc-003",
+      "front": "Explain the event loop",
+      "back": "The event loop handles asynchronous operations in JavaScript. It continuously checks the call stack and callback queue, moving callbacks to the stack when it's empty."
+    },
+    {
+      "id": "js-fc-004",
+      "front": "What is `this` in JavaScript?",
+      "back": "`this` refers to the context in which a function is called. In arrow functions, `this` is lexically bound to the enclosing scope."
+    },
+    {
+      "id": "js-fc-005",
+      "front": "What are Promises?",
+      "back": "Promises represent the eventual completion or failure of an asynchronous operation. They have three states: pending, fulfilled and rejected."
+    },
+    {
+      "id": "js-fc-006",
+      "front": "What is async/await?",
+      "back": "`async/await` provides syntactic sugar for working with Promises, making asynchronous code look and behave more like synchronous code."
+    },
+    {
+      "id": "js-fc-007",
+      "front": "What is destructuring?",
+      "back": "Destructuring allows unpacking values from arrays or properties from objects into distinct variables: `const {name, age} = person`"
+    },
+    {
+      "id": "js-fc-008",
+      "front": "What is the spread operator?",
+      "back": "The spread operator (`...`) expands an iterable (array, object) into individual elements. Used for copying, merging and passing arguments."
+    },
+    {
+      "id": "js-fc-009",
+      "front": "What is prototypal inheritance?",
+      "back": "JavaScript uses prototypes for inheritance. Objects can inherit properties and methods from other objects through the prototype chain."
+    },
+    {
+      "id": "js-fc-010",
+      "front": "What is hoisting?",
+      "back": "Hoisting is JavaScript's behavior of moving declarations to the top of their scope. `var` declarations are hoisted, but `let` and `const` are in a 'temporal dead zone'."
+    }
+  ],
+  "typescript": [
+    {
+      "id": "ts-fc-001",
+      "front": "What is TypeScript?",
+      "back": "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds optional static typing, classes and interfaces."
+    },
+    {
+      "id": "ts-fc-002",
+      "front": "What is a type annotation?",
+      "back": "Type annotations explicitly specify the type of a variable, parameter or return value: `let name: string = 'John'`"
+    },
+    {
+      "id": "ts-fc-003",
+      "front": "What are interfaces?",
+      "back": "Interfaces define the structure of objects, specifying property names and types. They're used for type checking and documentation."
+    },
+    {
+      "id": "ts-fc-004",
+      "front": "What are generics?",
+      "back": "Generics allow creating reusable components that work with multiple types while maintaining type safety: `Array<T>`, `Promise<T>`"
+    },
+    {
+      "id": "ts-fc-005",
+      "front": "What is a union type?",
+      "back": "A union type allows a value to be one of several types: `string | number`. The variable can be either type."
+    },
+    {
+      "id": "ts-fc-006",
+      "front": "What is type inference?",
+      "back": "TypeScript automatically infers types based on assigned values, reducing the need for explicit annotations while maintaining type safety."
+    },
+    {
+      "id": "ts-fc-007",
+      "front": "What are utility types?",
+      "back": "Built-in type helpers like `Partial<T>`, `Required<T>`, `Pick<T, K>`, `Omit<T, K>` that transform existing types."
+    },
+    {
+      "id": "ts-fc-008",
+      "front": "What is `any` type?",
+      "back": "The `any` type opts out of type checking, allowing any value. Should be avoided as it defeats TypeScript's purpose."
+    },
+    {
+      "id": "ts-fc-009",
+      "front": "What are type guards?",
+      "back": "Type guards are runtime checks (typeof, instanceof, custom functions) that narrow types within conditional blocks."
+    },
+    {
+      "id": "ts-fc-010",
+      "front": "What is `never` type?",
+      "back": "The `never` type represents values that never occur, used for functions that never return or exhaustive type checking."
+    }
+  ],
+  "python": [
+    {
+      "id": "py-fc-001",
+      "front": "What is Python?",
+      "back": "Python is a high-level, interpreted programming language known for readability, simplicity and versatility across web, data science and automation."
+    },
+    {
+      "id": "py-fc-002",
+      "front": "What are list comprehensions?",
+      "back": "A concise way to create lists: `[x*2 for x in range(10)]`. Can include conditions: `[x for x in numbers if x > 5]`"
+    },
+    {
+      "id": "py-fc-003",
+      "front": "What is a decorator?",
+      "back": "A decorator modifies or enhances functions/classes using the `@decorator` syntax. It's a function that takes a function and returns a new function."
+    },
+    {
+      "id": "py-fc-004",
+      "front": "What is `*args` and `**kwargs`?",
+      "back": "`*args` accepts variable positional arguments as a tuple. `**kwargs` accepts variable keyword arguments as a dictionary."
+    },
+    {
+      "id": "py-fc-005",
+      "front": "What is a generator?",
+      "back": "A generator function uses `yield` instead of `return` to produce values one at a time, enabling memory-efficient iteration."
+    },
+    {
+      "id": "py-fc-006",
+      "front": "What is the GIL?",
+      "back": "The Global Interpreter Lock (GIL) is a mutex that allows only one thread to execute Python bytecode at a time, affecting multi-threading."
+    },
+    {
+      "id": "py-fc-007",
+      "front": "What are Python's data types?",
+      "back": "Built-in types include: int, float, str, bool, list, tuple, dict, set. Plus None for null values."
+    },
+    {
+      "id": "py-fc-008",
+      "front": "What is `with` statement?",
+      "back": "The `with` statement ensures proper resource management using context managers, automatically handling setup and cleanup (like closing files)."
+    },
+    {
+      "id": "py-fc-009",
+      "front": "What is duck typing?",
+      "back": "Python's philosophy: if an object walks like a duck and quacks like a duck, treat it as a duck. Type determined by behavior, not inheritance."
+    },
+    {
+      "id": "py-fc-010",
+      "front": "What is `__init__`?",
+      "back": "The constructor method in Python classes, automatically called when creating a new instance to initialize object attributes."
+    }
+  ],
+  "react": [
+    {
+      "id": "react-fc-001",
+      "front": "What is React?",
+      "back": "A JavaScript library for building user interfaces using components. It uses a virtual DOM for efficient updates and supports declarative programming."
+    },
+    {
+      "id": "react-fc-002",
+      "front": "What are components?",
+      "back": "Reusable, self-contained pieces of UI. Can be function components (modern) or class components (legacy)."
+    },
+    {
+      "id": "react-fc-003",
+      "front": "What is JSX?",
+      "back": "JavaScript XML - a syntax extension that looks like HTML but compiles to JavaScript. Makes React code more readable."
+    },
+    {
+      "id": "react-fc-004",
+      "front": "What is `useState`?",
+      "back": "A Hook that adds state to function components. Returns a state value and setter function: `const [count, setCount] = useState(0)`"
+    },
+    {
+      "id": "react-fc-005",
+      "front": "What is `useEffect`?",
+      "back": "A Hook for side effects (data fetching, subscriptions, DOM updates). Runs after render and can clean up. Dependencies control when it re-runs."
+    },
+    {
+      "id": "react-fc-006",
+      "front": "What is the Virtual DOM?",
+      "back": "A lightweight copy of the actual DOM. React compares virtual DOM with previous version to determine minimal updates needed."
+    },
+    {
+      "id": "react-fc-007",
+      "front": "What are props?",
+      "back": "Properties passed from parent to child components. They're read-only and flow downward in the component tree."
+    },
+    {
+      "id": "react-fc-008",
+      "front": "What is `useContext`?",
+      "back": "A Hook for consuming React Context, allowing data sharing across the component tree without prop drilling."
+    },
+    {
+      "id": "react-fc-009",
+      "front": "What are keys in lists?",
+      "back": "Unique identifiers for list items that help React identify which items changed, added or removed for efficient updates."
+    },
+    {
+      "id": "react-fc-010",
+      "front": "What is React.memo?",
+      "back": "A higher-order component that memoizes a component, preventing re-renders if props haven't changed. Performance optimization tool."
+    }
+  ],
+  "llm": [
+    {
+      "id": "llm-fc-001",
+      "front": "What is an LLM?",
+      "back": "Large Language Model - an AI trained on massive text data to understand and generate human-like text. Examples: GPT-4, Claude, Gemini."
+    },
+    {
+      "id": "llm-fc-002",
+      "front": "What is a prompt?",
+      "back": "The input text given to an LLM to generate a response. Good prompts are clear, specific and provide necessary context."
+    },
+    {
+      "id": "llm-fc-003",
+      "front": "What is temperature?",
+      "back": "Controls output randomness (0-2). Low (0-0.3) = focused/deterministic, High (0.7-1.0) = creative/varied. Affects sampling."
+    },
+    {
+      "id": "llm-fc-004",
+      "front": "What are tokens?",
+      "back": "Pieces of text the model processes (roughly 4 chars or 0.75 words). Used for pricing and context limits."
+    },
+    {
+      "id": "llm-fc-005",
+      "front": "What is few-shot learning?",
+      "back": "Providing examples in the prompt to guide the model's behavior. Shows the pattern you want it to follow."
+    },
+    {
+      "id": "llm-fc-006",
+      "front": "What is chain-of-thought?",
+      "back": "Prompting technique that asks the model to show reasoning step-by-step, improving accuracy on complex tasks."
+    },
+    {
+      "id": "llm-fc-007",
+      "front": "What are embeddings?",
+      "back": "Vector representations of text that capture semantic meaning. Used for similarity search and semantic search."
+    },
+    {
+      "id": "llm-fc-008",
+      "front": "What is RAG?",
+      "back": "Retrieval Augmented Generation - combines LLMs with knowledge retrieval. Fetches relevant docs before generating, reducing hallucinations."
+    },
+    {
+      "id": "llm-fc-009",
+      "front": "What is function calling?",
+      "back": "LLM feature that allows the model to trigger external functions/APIs. Returns structured requests to call predefined tools."
+    },
+    {
+      "id": "llm-fc-010",
+      "front": "What is a system prompt?",
+      "back": "Special instructions that set the AI's role, behavior and constraints. Persists across the conversation, separate from user messages."
+    }
+  ],
+  "general": [
+    {
+      "id": "gen-fc-001",
+      "front": "What is an algorithm?",
+      "back": "A step-by-step procedure for solving a problem or performing a task. Must be finite, unambiguous and effective."
+    },
+    {
+      "id": "gen-fc-002",
+      "front": "What is Big O notation?",
+      "back": "Describes time or space complexity of algorithms in worst case. Common: O(1), O(log n), O(n), O(n log n), O(n²)."
+    },
+    {
+      "id": "gen-fc-003",
+      "front": "What is a data structure?",
+      "back": "A way of organizing and storing data for efficient access and modification. Examples: arrays, linked lists, trees, hash tables."
+    },
+    {
+      "id": "gen-fc-004",
+      "front": "What is an API?",
+      "back": "Application Programming Interface - a set of rules and protocols for software to communicate. Defines how requests and responses work."
+    },
+    {
+      "id": "gen-fc-005",
+      "front": "What is REST?",
+      "back": "Representational State Transfer - an architectural style for APIs using HTTP methods (GET, POST, PUT, DELETE) and stateless communication."
+    },
+    {
+      "id": "gen-fc-006",
+      "front": "What is version control?",
+      "back": "System for tracking changes to files over time. Git is the most popular, allowing collaboration, branching and history."
+    },
+    {
+      "id": "gen-fc-007",
+      "front": "What is debugging?",
+      "back": "The process of finding and fixing errors (bugs) in code. Uses techniques like logging, breakpoints and systematic testing."
+    },
+    {
+      "id": "gen-fc-008",
+      "front": "What is recursion?",
+      "back": "A function that calls itself to solve a problem by breaking it into smaller subproblems. Needs a base case to stop."
+    },
+    {
+      "id": "gen-fc-009",
+      "front": "What is MVC?",
+      "back": "Model-View-Controller - a design pattern separating data (Model), UI (View) and logic (Controller) for organized code."
+    },
+    {
+      "id": "gen-fc-010",
+      "front": "What is continuous integration?",
+      "back": "Development practice of frequently merging code changes and automatically testing them. Catches integration issues early."
+    }
+  ]
+}

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Studdy Buddy - AI Chat Assistant",
-  description: "Your personal AI-powered study companion and chat assistant",
+  title: "studdy-buddy - AI Coding Education",
+  description: "AI-powered coding education with lessons, flashcards and tests",
   icons: {
     icon: '/icon.svg',
     apple: '/icon.svg',
