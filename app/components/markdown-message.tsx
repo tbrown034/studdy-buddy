@@ -4,7 +4,11 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
-import type { Components } from 'react-markdown';
+import type { ExtraProps } from 'react-markdown';
+
+interface CodeComponentProps extends React.HTMLAttributes<HTMLElement>, ExtraProps {
+  inline?: boolean;
+}
 
 export function MarkdownMessage({ content, isUser }: { content: string; isUser: boolean }) {
   return (
@@ -16,7 +20,8 @@ export function MarkdownMessage({ content, isUser }: { content: string; isUser: 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ inline, className, children, ...props }) {
+          code(props: CodeComponentProps) {
+            const { node, inline, className, children, ...rest } = props;
             const match = /language-(\w+)/.exec(className || '');
             const isInline = inline || !match;
 
@@ -35,7 +40,7 @@ export function MarkdownMessage({ content, isUser }: { content: string; isUser: 
                       ? 'bg-blue-600/30 text-blue-100 px-1.5 py-0.5 rounded'
                       : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 px-1.5 py-0.5 rounded'
                   }`}
-                  {...props}
+                  {...rest}
                 >
                   {codeString}
                 </code>
