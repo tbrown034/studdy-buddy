@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Header } from '../components/header';
+import { Footer } from '../components/footer';
 import techDocs from '../../lib/tech-docs.json';
 import curatedIndex from '../../docs/curated/index.json';
 
@@ -133,31 +134,7 @@ export default function DocsPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t-2 border-black dark:border-white px-4 py-6">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="font-mono text-sm">
-              <div className="font-bold">studdy-buddy</div>
-              <div className="text-zinc-600 dark:text-zinc-400">© 2025</div>
-            </div>
-            <div className="flex gap-4 font-mono text-sm">
-              <a href="/" className="hover:underline">
-                home
-              </a>
-              <a href="/code" className="hover:underline">
-                code
-              </a>
-              <a href="/study" className="hover:underline">
-                study
-              </a>
-              <a href="/stats" className="hover:underline">
-                stats
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Activity, DollarSign, Zap, TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { Header } from '../components/header';
+import { Footer } from '../components/footer';
 
 type UsageLog = {
   id: string;
@@ -298,6 +299,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

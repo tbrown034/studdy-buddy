@@ -42,3 +42,12 @@ next-env.d.ts
 
 # docs temp directory
 docs/.temp
+
+# ai/claude code related files
+.ai-docs/
+claude.md
+CLAUDE.md
+SITE-REVIEW.md
+LEGAL.md
+.claude/
+*.claude.md
