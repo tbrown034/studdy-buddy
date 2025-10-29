@@ -63,12 +63,12 @@ export default function HomePage() {
                   </li>
                   <li className="flex gap-3 items-center">
                     <span className="font-bold text-zinc-400">--</span>
-                    <a
-                      href="#stack"
+                    <Link
+                      href="/docs"
                       className="text-zinc-500 dark:text-zinc-500 hover:text-black dark:hover:text-white transition-colors"
                     >
                       or just skip to the docs
-                    </a>
+                    </Link>
                   </li>
                 </ol>
               </div>

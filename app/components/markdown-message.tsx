@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
+import type { Components } from 'react-markdown';
 
 export function MarkdownMessage({ content, isUser }: { content: string; isUser: boolean }) {
   return (
@@ -15,7 +16,7 @@ export function MarkdownMessage({ content, isUser }: { content: string; isUser: 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, inline, className, children, ...props }: any) {
+          code({ inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const isInline = inline || !match;
 

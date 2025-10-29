@@ -13,12 +13,12 @@ export function Header() {
     <header className="sticky top-0 z-10 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 font-mono font-bold hover:underline">
+        <Link href="/" className="flex items-center gap-2.5 font-mono font-bold text-lg hover:underline">
           <Image
             src="/icon.svg"
             alt="studdy-buddy icon"
-            width={24}
-            height={24}
+            width={28}
+            height={28}
             className="shrink-0"
           />
           studdy-buddy
@@ -46,6 +46,17 @@ export function Header() {
             }`}
           >
             docs
+          </Link>
+
+          <Link
+            href="/about"
+            className={`hover:underline ${
+              isActive('/about')
+                ? 'font-bold'
+                : 'text-zinc-600 dark:text-zinc-400'
+            }`}
+          >
+            about
           </Link>
         </nav>
       </div>

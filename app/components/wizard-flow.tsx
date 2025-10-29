@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 type WizardStep = {
   title: string;
@@ -18,7 +19,7 @@ type WizardFlowProps = {
     title: string;
     description: string;
     getPrompt: () => string;
-    getSummary: () => Array<{ label: string; value: string; icon?: any }>;
+    getSummary: () => Array<{ label: string; value: string; icon?: LucideIcon }>;
   };
 };
 

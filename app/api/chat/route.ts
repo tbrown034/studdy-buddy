@@ -5,11 +5,11 @@ import { usageTracker } from '@/lib/usage-tracker';
 // Configuration constants
 const CONFIG = {
   MODEL: 'gpt-4o-mini',
-  MAX_TOKENS: 1000, // Max tokens per response
-  MAX_CONTEXT_MESSAGES: 20, // Keep last 20 messages max
-  MAX_MESSAGE_LENGTH: 2000, // Max chars per message
+  MAX_TOKENS: 2000, // Max tokens per response (better quality responses)
+  MAX_CONTEXT_MESSAGES: 25, // Keep last 25 messages max (better context)
+  MAX_MESSAGE_LENGTH: 3000, // Max chars per message (more flexible)
   RATE_LIMIT_WINDOW_MS: 60000, // 1 minute
-  MAX_REQUESTS_PER_WINDOW: 20, // 20 requests per minute
+  MAX_REQUESTS_PER_WINDOW: 50, // 50 requests per minute (more forgiving)
   TIMEOUT_MS: 30000, // 30 second timeout
 } as const;
 
@@ -123,7 +123,6 @@ export async function POST(req: Request) {
 
     // Create a readable stream for the response
     const encoder = new TextEncoder();
-    let fullContent = '';
     let promptTokens = 0;
     let completionTokens = 0;
 
@@ -133,7 +132,6 @@ export async function POST(req: Request) {
           for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content || '';
             if (content) {
-              fullContent += content;
               completionTokens += 1; // Rough estimate
               controller.enqueue(encoder.encode(content));
             }
