@@ -130,16 +130,34 @@ const LANGUAGES: Record<Language, {
 };
 
 export default function StuddyBuddyCodingPage() {
+  // Generate random defaults on component mount
+  const getRandomDefaults = (): CodingConfig => {
+    const languages = Object.keys(LANGUAGES) as Language[];
+    const levels: Level[] = ['beginner', 'intermediate', 'advanced'];
+    const sessionTypes: CodingConfig['sessionType'][] = ['lesson', 'flashcards', 'tests'];
+
+    const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
+    const randomLevel = levels[Math.floor(Math.random() * levels.length)];
+    const randomSessionType = sessionTypes[Math.floor(Math.random() * sessionTypes.length)];
+
+    // Get random topic for the selected language and level
+    const topicsForLevel = LANGUAGES[randomLanguage].topics[randomLevel];
+    const availableTopics = topicsForLevel.filter(t => t !== 'Random' && t !== 'General');
+    const randomTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+
+    return {
+      topic: randomTopic,
+      language: randomLanguage,
+      level: randomLevel,
+      sessionType: randomSessionType,
+      lessonDuration: 20,
+      flashcardCount: 10,
+      quizQuestionCount: 10,
+    };
+  };
+
   const [sessionStarted, setSessionStarted] = useState(false);
-  const [config, setConfig] = useState<CodingConfig>({
-    topic: '',
-    language: 'javascript',
-    level: 'beginner',
-    sessionType: 'lesson',
-    lessonDuration: 20,
-    flashcardCount: 10,
-    quizQuestionCount: 10,
-  });
+  const [config, setConfig] = useState<CodingConfig>(getRandomDefaults());
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -196,27 +214,76 @@ export default function StuddyBuddyCodingPage() {
     }
   };
 
-  const initializeQuiz = () => {
-    // Note: Quiz questions would come from an external source
-    const langQuestions: QuizQuestion[] = [];
-    const count = config.quizQuestionCount || 10;
-    const shuffled = [...langQuestions].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, Math.min(count, langQuestions.length));
+  const initializeQuiz = async () => {
+    setLoading(true);
+    setError(null);
 
-    const quizQuestions: QuizQuestion[] = selected.map((q) => ({
-      ...q,
-      userAnswer: undefined
-    }));
+    try {
+      const count = config.quizQuestionCount || 10;
+      const langInfo = LANGUAGES[config.language];
+      const systemPrompt = `You are a quiz generator. Generate exactly ${count} multiple choice questions about ${config.topic} for ${langInfo.label} at the ${config.level} level.
 
-    setQuizState({
-      questions: quizQuestions,
-      currentQuestionIndex: 0,
-      selectedAnswer: null,
-      answeredQuestions: new Set(),
-      showFeedback: false,
-      isComplete: false
-    });
-    setMessages([]);
+IMPORTANT: Return ONLY valid JSON with no additional text or markdown. The JSON must be an array of objects with this exact structure:
+[
+  {
+    "id": "1",
+    "question": "What is...",
+    "choices": [
+      {"id": "a", "text": "Option A"},
+      {"id": "b", "text": "Option B"},
+      {"id": "c", "text": "Option C"},
+      {"id": "d", "text": "Option D"}
+    ],
+    "correctAnswer": "a",
+    "explanation": "Brief explanation of why this is correct"
+  }
+]
+
+Make questions appropriate for ${config.level} level. Focus on practical knowledge.`;
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: 'Generate the quiz questions now.' },
+          ],
+        }),
+      });
+
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      if (!response.body) throw new Error('No response body');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let content = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        content += chunk;
+      }
+
+      // Parse the JSON response
+      const quizQuestions: QuizQuestion[] = JSON.parse(content.trim());
+
+      setQuizState({
+        questions: quizQuestions,
+        currentQuestionIndex: 0,
+        selectedAnswer: null,
+        answeredQuestions: new Set(),
+        showFeedback: false,
+        isComplete: false
+      });
+      setMessages([]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate quiz');
+      setQuizState(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectQuizAnswer = (choiceId: string) => {
@@ -484,15 +551,7 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
   const resetSession = () => {
     setSessionStarted(false);
     setMessages([]);
-    setConfig({
-      topic: '',
-      language: 'javascript',
-      level: 'beginner',
-      sessionType: 'lesson',
-      lessonDuration: 20,
-      flashcardCount: 10,
-      quizQuestionCount: 10,
-    });
+    setConfig(getRandomDefaults());
     setError(null);
     setFlashcardState(null);
     setQuizState(null);
@@ -569,13 +628,18 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
                   <button
                     key={topic}
                     onClick={() => {
-                      if (topic === 'Random' || topic === 'General') {
-                        setConfig({ ...config, topic: '' });
+                      if (topic === 'Random') {
+                        // Pick a random topic from the list (excluding Random itself)
+                        const availableTopics = LANGUAGES[config.language].topics[config.level].filter(t => t !== 'Random' && t !== 'General');
+                        const randomTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+                        setConfig({ ...config, topic: randomTopic });
                       } else {
                         setConfig({ ...config, topic });
                       }
                     }}
-                    className="px-3 py-1.5 text-xs font-mono border border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                    className={`px-3 py-1.5 text-xs font-mono border border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black ${
+                      config.topic === topic ? 'bg-black dark:bg-white text-white dark:text-black' : ''
+                    }`}
                   >
                     {topic.toLowerCase()}
                   </button>
@@ -606,7 +670,7 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
         content: (
           <div className="space-y-6">
             {/* Session Type Selection */}
-            <div className="space-y-px">
+            <div className="space-y-3">
               {[
                 { value: 'lesson', label: 'lesson', desc: 'Structured learning with examples' },
                 { value: 'flashcards', label: 'flashcards', desc: 'Spaced repetition study cards' },
@@ -637,20 +701,20 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
             {config.sessionType === 'lesson' && (
               <div className="border-2 border-black dark:border-white p-4">
                 <label className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3 block">
-                  Lesson Duration
+                  Lesson Duration (minutes)
                 </label>
-                <div className="grid grid-cols-3 gap-px bg-black dark:bg-white">
+                <div className="grid grid-cols-3 gap-3">
                   {[10, 20, 30].map((duration) => (
                     <button
                       key={duration}
                       onClick={() => setConfig({ ...config, lessonDuration: duration as 10 | 20 | 30 })}
-                      className={`py-3 px-4 font-mono font-bold ${
+                      className={`py-3 px-4 font-mono font-bold border-2 border-black dark:border-white ${
                         config.lessonDuration === duration
                           ? 'bg-black dark:bg-white text-white dark:text-black'
                           : 'bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-900'
                       }`}
                     >
-                      {duration}m
+                      {duration} min
                     </button>
                   ))}
                 </div>
@@ -662,18 +726,18 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
                 <label className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3 block">
                   Number of Flashcards
                 </label>
-                <div className="grid grid-cols-3 gap-px bg-black dark:bg-white">
+                <div className="grid grid-cols-3 gap-3">
                   {[5, 10, 15].map((count) => (
                     <button
                       key={count}
                       onClick={() => setConfig({ ...config, flashcardCount: count as 5 | 10 | 15 })}
-                      className={`py-3 px-4 font-mono font-bold ${
+                      className={`py-3 px-4 font-mono font-bold border-2 border-black dark:border-white ${
                         config.flashcardCount === count
                           ? 'bg-black dark:bg-white text-white dark:text-black'
                           : 'bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-900'
                       }`}
                     >
-                      {count}
+                      {count} cards
                     </button>
                   ))}
                 </div>
@@ -683,20 +747,20 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
             {config.sessionType === 'tests' && (
               <div className="border-2 border-black dark:border-white p-4">
                 <label className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3 block">
-                  Number of Quiz Questions
+                  Number of Questions
                 </label>
-                <div className="grid grid-cols-3 gap-px bg-black dark:bg-white">
+                <div className="grid grid-cols-3 gap-3">
                   {[5, 10, 15].map((count) => (
                     <button
                       key={count}
                       onClick={() => setConfig({ ...config, quizQuestionCount: count as 5 | 10 | 15 })}
-                      className={`py-3 px-4 font-mono font-bold ${
+                      className={`py-3 px-4 font-mono font-bold border-2 border-black dark:border-white ${
                         config.quizQuestionCount === count
                           ? 'bg-black dark:bg-white text-white dark:text-black'
                           : 'bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-900'
                       }`}
                     >
-                      {count}q
+                      {count} questions
                     </button>
                   ))}
                 </div>
@@ -790,54 +854,33 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
         <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
           {quizState && !quizState.isComplete ? (
             <div className="space-y-6">
-              {/* Quiz Progress Bar */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                    Practice Test
-                  </h3>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Question {quizState.currentQuestionIndex + 1} of {quizState.questions.length}
-                  </span>
-                </div>
-                <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-linear-to-r from-green-500 to-emerald-600 transition-all duration-500"
-                    style={{ width: `${((quizState.currentQuestionIndex + 1) / quizState.questions.length) * 100}%` }}
-                  />
-                </div>
-                <div className="flex items-center gap-2 mt-3">
-                  {quizState.questions.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`h-2 flex-1 rounded-full transition-all ${
-                        quizState.answeredQuestions.has(idx)
-                          ? 'bg-green-500'
-                          : idx === quizState.currentQuestionIndex
-                          ? 'bg-blue-500'
-                          : 'bg-zinc-200 dark:bg-zinc-700'
-                      }`}
-                    />
-                  ))}
-                </div>
+              {/* Navigation Header */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={resetSession}
+                  className="px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white transition-colors"
+                >
+                  ← Back to Home
+                </button>
+                <span className="text-xs font-mono text-zinc-600 dark:text-zinc-400">
+                  question {quizState.currentQuestionIndex + 1} / {quizState.questions.length}
+                </span>
               </div>
 
-              {/* Scantron-style Quiz Question */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 shadow-sm">
-                {/* Question Number Badge */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-emerald-600 text-white font-bold text-xl shadow-lg">
-                    {quizState.currentQuestionIndex + 1}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-50 leading-tight">
-                      {quizState.questions[quizState.currentQuestionIndex].question}
-                    </h3>
-                  </div>
+              {/* Quiz Question */}
+              <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-6 sm:p-8">
+                {/* Question */}
+                <div className="mb-6">
+                  <p className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-3">
+                    [question {quizState.currentQuestionIndex + 1}]
+                  </p>
+                  <h3 className="text-xl sm:text-2xl font-bold font-mono leading-tight">
+                    {quizState.questions[quizState.currentQuestionIndex].question}
+                  </h3>
                 </div>
 
-                {/* Scantron Answer Bubbles */}
-                <div className="space-y-3">
+                {/* Answer Choices */}
+                <div className="space-y-2">
                   {quizState.questions[quizState.currentQuestionIndex].choices.map((choice) => {
                     const isSelected = quizState.selectedAnswer === choice.id;
                     const isCorrect = choice.id === quizState.questions[quizState.currentQuestionIndex].correctAnswer;
@@ -848,56 +891,24 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
                         key={choice.id}
                         onClick={() => !quizState.showFeedback && selectQuizAnswer(choice.id)}
                         disabled={quizState.showFeedback}
-                        className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${
+                        className={`w-full flex items-center gap-4 p-4 border-2 font-mono text-left transition-all ${
                           showResult
                             ? isCorrect
-                              ? 'bg-green-50 dark:bg-green-950/20 border-2 border-green-500'
+                              ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]'
                               : isSelected
-                              ? 'bg-red-50 dark:bg-red-950/20 border-2 border-red-500'
-                              : 'border-2 border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800'
+                              ? 'border-zinc-400 dark:border-zinc-600 bg-white dark:bg-black text-zinc-400 dark:text-zinc-600 line-through'
+                              : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black opacity-40'
                             : isSelected
-                            ? 'border-2 border-green-500 bg-green-50 dark:bg-green-950/20 shadow-md scale-[1.02]'
-                            : 'border-2 border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-950/20'
+                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black'
+                            : 'border-black dark:border-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-900'
                         } ${!quizState.showFeedback ? 'cursor-pointer' : 'cursor-default'}`}
                       >
-                        {/* Scantron Bubble */}
-                        <div className="shrink-0 relative">
-                          <div className={`w-12 h-12 rounded-full border-3 flex items-center justify-center font-bold text-lg transition-all ${
-                            showResult
-                              ? isCorrect
-                                ? 'border-green-500 bg-green-500 text-white'
-                                : isSelected
-                                ? 'border-red-500 bg-red-500 text-white'
-                                : 'border-zinc-300 dark:border-zinc-600 text-zinc-400'
-                              : isSelected
-                              ? 'border-green-500 bg-green-500 text-white shadow-lg'
-                              : 'border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 group-hover:border-green-500'
-                          }`}>
-                            {choice.id.toUpperCase()}
-                          </div>
-                          {showResult && isCorrect && (
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                              <CheckSquare className="h-3 w-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Choice Text */}
-                        <div className="flex-1 text-left">
-                          <p className={`text-base sm:text-lg ${
-                            showResult
-                              ? isCorrect
-                                ? 'text-green-900 dark:text-green-100 font-semibold'
-                                : isSelected
-                                ? 'text-red-900 dark:text-red-100'
-                                : 'text-zinc-600 dark:text-zinc-400'
-                              : isSelected
-                              ? 'text-green-900 dark:text-green-100 font-semibold'
-                              : 'text-zinc-900 dark:text-zinc-50'
-                          }`}>
-                            {choice.text}
-                          </p>
-                        </div>
+                        <span className={`font-bold ${showResult && isCorrect ? 'text-lg' : ''}`}>
+                          {showResult && isCorrect ? '✓' : showResult && isSelected && !isCorrect ? '✗' : `[${choice.id.toUpperCase()}]`}
+                        </span>
+                        <span className="flex-1">
+                          {choice.text}
+                        </span>
                       </button>
                     );
                   })}
@@ -905,24 +916,29 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
 
                 {/* Feedback Section */}
                 {quizState.showFeedback && (
-                  <div className={`mt-6 p-4 rounded-xl ${
+                  <div className={`mt-6 p-4 border-2 ${
                     quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
-                      ? 'bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900'
-                      : 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900'
+                      ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black'
+                      : 'border-black dark:border-white bg-white dark:bg-black'
                   }`}>
-                    <h4 className={`font-semibold mb-2 ${
+                    <p className="text-xs font-mono uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <span className="text-lg">
+                        {quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
+                          ? '✓'
+                          : '✗'}
+                      </span>
+                      <span className={quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
+                        ? 'opacity-70'
+                        : 'text-zinc-600 dark:text-zinc-400'}>
+                        {quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
+                          ? 'correct'
+                          : 'incorrect'}
+                      </span>
+                    </p>
+                    <p className={`font-mono text-sm ${
                       quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
-                        ? 'text-green-900 dark:text-green-100'
-                        : 'text-red-900 dark:text-red-100'
-                    }`}>
-                      {quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
-                        ? 'Correct!'
-                        : 'Incorrect'}
-                    </h4>
-                    <p className={`text-sm ${
-                      quizState.selectedAnswer === quizState.questions[quizState.currentQuestionIndex].correctAnswer
-                        ? 'text-green-700 dark:text-green-300'
-                        : 'text-red-700 dark:text-red-300'
+                        ? 'opacity-90'
+                        : ''
                     }`}>
                       {quizState.questions[quizState.currentQuestionIndex].explanation}
                     </p>
@@ -930,31 +946,29 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
                 )}
 
                 {/* Submit/Next Buttons */}
-                <div className="flex items-center gap-3 mt-6">
+                <div className="flex gap-3 mt-6">
                   <button
                     onClick={prevQuizQuestion}
                     disabled={quizState.currentQuestionIndex === 0}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="px-6 py-3 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
-                    <ChevronLeft className="h-5 w-5" />
-                    Previous
+                    ← previous
                   </button>
 
                   {!quizState.showFeedback ? (
                     <button
                       onClick={submitQuizAnswer}
                       disabled={!quizState.selectedAnswer}
-                      className="flex-1 px-6 py-3 rounded-xl bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold hover:from-green-600 hover:to-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-lg"
+                      className="flex-1 px-6 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-zinc-800 hover:text-white dark:hover:bg-zinc-200 dark:hover:text-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
-                      Submit Answer
+                      submit answer
                     </button>
                   ) : (
                     <button
                       onClick={nextQuizQuestion}
-                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg"
+                      className="flex-1 px-6 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-zinc-800 hover:text-white dark:hover:bg-zinc-200 dark:hover:text-black transition-colors"
                     >
-                      {quizState.currentQuestionIndex >= quizState.questions.length - 1 ? 'View Results' : 'Next Question'}
-                      {quizState.currentQuestionIndex < quizState.questions.length - 1 && <ChevronRight className="h-5 w-5" />}
+                      {quizState.currentQuestionIndex >= quizState.questions.length - 1 ? 'view results' : 'next →'}
                     </button>
                   )}
                 </div>
@@ -962,61 +976,55 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
             </div>
           ) : quizState && quizState.isComplete ? (
             <div className="space-y-6">
+              {/* Navigation Header */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={resetSession}
+                  className="px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white transition-colors"
+                >
+                  ← Back to Home
+                </button>
+              </div>
+
               {/* Quiz Complete - Results */}
-              <div className="bg-linear-to-br from-green-500 to-emerald-600 rounded-xl p-8 text-white shadow-lg">
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm mb-4">
-                    <CheckSquare className="h-10 w-10" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-2">Quiz Complete!</h3>
-                  <p className="text-green-100 text-lg">
-                    You answered {quizState.questions.filter(q => q.userAnswer === q.correctAnswer).length} out of {quizState.questions.length} questions correctly
-                  </p>
-                  <div className="mt-4">
-                    <div className="text-5xl font-bold">
-                      {Math.round((quizState.questions.filter(q => q.userAnswer === q.correctAnswer).length / quizState.questions.length) * 100)}%
-                    </div>
-                    <p className="text-green-100 text-sm">Overall Score</p>
-                  </div>
+              <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-8 text-center">
+                <p className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-4">
+                  [quiz complete]
+                </p>
+                <div className="text-6xl font-bold font-mono mb-4">
+                  {Math.round((quizState.questions.filter(q => q.userAnswer === q.correctAnswer).length / quizState.questions.length) * 100)}%
                 </div>
+                <p className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+                  {quizState.questions.filter(q => q.userAnswer === q.correctAnswer).length} / {quizState.questions.length} correct
+                </p>
               </div>
 
               {/* Review Answers */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-                <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">Review Your Answers</h4>
-                <div className="space-y-4">
+              <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-6">
+                <h4 className="text-sm font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-4">[review]</h4>
+                <div className="space-y-3">
                   {quizState.questions.map((q, idx) => {
                     const isCorrect = q.userAnswer === q.correctAnswer;
                     return (
                       <div
                         key={idx}
-                        className={`p-4 rounded-lg ${
-                          isCorrect
-                            ? 'bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900'
-                            : 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900'
-                        }`}
+                        className="p-4 border-2 border-black dark:border-white"
                       >
-                        <div className="flex items-start gap-3 mb-2">
-                          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                            isCorrect ? 'bg-green-500' : 'bg-red-500'
-                          } text-white font-bold text-sm`}>
-                            {idx + 1}
-                          </div>
+                        <div className="flex items-start gap-3">
+                          <span className="font-mono font-bold">
+                            {isCorrect ? '✓' : '✗'} {idx + 1}.
+                          </span>
                           <div className="flex-1">
-                            <p className="font-semibold text-zinc-900 dark:text-zinc-50 mb-1">{q.question}</p>
-                            <p className={`text-sm ${
-                              isCorrect
-                                ? 'text-green-700 dark:text-green-300'
-                                : 'text-red-700 dark:text-red-300'
-                            }`}>
-                              Your answer: {q.choices.find(c => c.id === q.userAnswer)?.text || 'No answer'}
+                            <p className="font-mono font-bold mb-2">{q.question}</p>
+                            <p className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+                              your answer: {q.choices.find(c => c.id === q.userAnswer)?.text || 'no answer'}
                             </p>
                             {!isCorrect && (
-                              <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                                Correct answer: {q.choices.find(c => c.id === q.correctAnswer)?.text}
+                              <p className="font-mono text-sm mt-1">
+                                correct: {q.choices.find(c => c.id === q.correctAnswer)?.text}
                               </p>
                             )}
-                            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-2">{q.explanation}</p>
+                            <p className="font-mono text-xs text-zinc-600 dark:text-zinc-400 mt-2">{q.explanation}</p>
                           </div>
                         </div>
                       </div>
@@ -1024,214 +1032,310 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
                   })}
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={resetSession}
-                  className="flex-1 py-3 rounded-xl bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg"
-                >
-                  New Session
-                </button>
-              </div>
             </div>
           ) : flashcardState ? (
             <div className="space-y-6">
-              {/* Flashcard Progress */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                    Flashcard Study Session
-                  </h3>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Card {flashcardState.currentIndex + 1} of {flashcardState.cards.length}
-                  </span>
-                </div>
-                <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-linear-to-r from-purple-500 to-pink-600 transition-all duration-500"
-                    style={{ width: `${((flashcardState.currentIndex + 1) / flashcardState.cards.length) * 100}%` }}
-                  />
-                </div>
+              {/* Navigation Header */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={resetSession}
+                  className="px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white transition-colors"
+                >
+                  ← Back to Home
+                </button>
+                <span className="text-xs font-mono text-zinc-600 dark:text-zinc-400">
+                  card {flashcardState.currentIndex + 1} / {flashcardState.cards.length}
+                </span>
               </div>
 
-              {/* Flip Card */}
-              <div className="perspective-1000">
-                <div
-                  className={`relative w-full transition-transform duration-700 transform-style-3d cursor-pointer ${
-                    flashcardState.isFlipped ? 'rotate-y-180' : ''
-                  }`}
-                  onClick={flipCard}
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                  {/* Front of Card */}
-                  <div className={`backface-hidden ${flashcardState.isFlipped ? 'opacity-0' : 'opacity-100'}`}>
-                    <div className="bg-linear-to-br from-purple-500 to-pink-600 rounded-2xl p-8 sm:p-12 shadow-2xl min-h-[400px] flex flex-col items-center justify-center text-center">
-                      <div className="mb-6">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm mb-4">
-                          <Zap className="h-8 w-8 text-white" />
-                        </div>
-                        <p className="text-sm font-medium text-purple-100 uppercase tracking-wider">Question</p>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-8">
-                        {flashcardState.cards[flashcardState.currentIndex]?.front}
-                      </h2>
-                      <p className="text-purple-100 text-sm flex items-center gap-2">
-                        <RotateCcw className="h-4 w-4" />
-                        Click to reveal answer
+              {/* Flashcard */}
+              <div
+                onClick={flipCard}
+                className="border-2 border-black dark:border-white bg-white dark:bg-black p-8 sm:p-12 min-h-[400px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-950 transition-colors"
+              >
+                {!flashcardState.isFlipped ? (
+                  <>
+                    <div className="mb-6">
+                      <p className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2">
+                        [question]
                       </p>
                     </div>
-                  </div>
-
-                  {/* Back of Card */}
-                  <div className={`absolute inset-0 backface-hidden rotate-y-180 ${flashcardState.isFlipped ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="bg-linear-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 sm:p-12 shadow-2xl min-h-[400px] flex flex-col items-center justify-center text-center">
-                      <div className="mb-6">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm mb-4">
-                          <CheckSquare className="h-8 w-8 text-white" />
-                        </div>
-                        <p className="text-sm font-medium text-blue-100 uppercase tracking-wider">Answer</p>
-                      </div>
-                      <p className="text-xl sm:text-2xl text-white leading-relaxed">
-                        {flashcardState.cards[flashcardState.currentIndex]?.back}
-                      </p>
-                      <p className="text-blue-100 text-sm flex items-center gap-2 mt-8">
-                        <RotateCcw className="h-4 w-4" />
-                        Click to flip back
+                    <h2 className="text-2xl sm:text-3xl font-bold font-mono leading-tight mb-8">
+                      {flashcardState.cards[flashcardState.currentIndex]?.front}
+                    </h2>
+                    <p className="text-zinc-600 dark:text-zinc-400 text-sm font-mono">
+                      click to reveal answer
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-6">
+                      <p className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2">
+                        [answer]
                       </p>
                     </div>
-                  </div>
-                </div>
+                    <p className="text-xl sm:text-2xl font-mono leading-relaxed">
+                      {flashcardState.cards[flashcardState.currentIndex]?.back}
+                    </p>
+                    <p className="text-zinc-600 dark:text-zinc-400 text-sm font-mono mt-8">
+                      click to flip back
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Navigation Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex gap-3">
                 <button
                   onClick={prevCard}
                   disabled={flashcardState.currentIndex === 0}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  className="px-6 py-3 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <ChevronLeft className="h-5 w-5" />
-                  Previous
+                  ← previous
                 </button>
 
                 <button
                   onClick={nextCard}
                   disabled={flashcardState.currentIndex >= flashcardState.cards.length - 1}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-purple-500 to-pink-600 text-white font-semibold hover:from-purple-600 hover:to-pink-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-lg"
+                  className="flex-1 px-6 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-zinc-800 hover:text-white dark:hover:bg-zinc-200 dark:hover:text-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  {flashcardState.currentIndex >= flashcardState.cards.length - 1 ? 'Complete' : 'Next'}
-                  {flashcardState.currentIndex < flashcardState.cards.length - 1 && <ChevronRight className="h-5 w-5" />}
+                  {flashcardState.currentIndex >= flashcardState.cards.length - 1 ? 'finish' : 'next →'}
                 </button>
-
-                {flashcardState.currentIndex >= flashcardState.cards.length - 1 && (
-                  <button
-                    onClick={resetSession}
-                    className="px-6 py-3 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition-all shadow-lg"
-                  >
-                    Finish
-                  </button>
-                )}
               </div>
             </div>
           ) : lessonState?.isLessonMode && messages.length > 0 ? (
             <div className="space-y-6">
-              {/* Lesson Content */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 shadow-sm">
-                <MarkdownMessage content={messages[messages.length - 1].content} isUser={false} />
-              </div>
-
-              {/* Lesson Actions */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-                <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-4">Continue Learning</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                  <button
-                    onClick={() => {
-                      setInput('Can you explain this in more detail?');
-                      inputRef.current?.focus();
-                    }}
-                    className="px-4 py-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 text-blue-900 dark:text-blue-100 font-semibold hover:bg-blue-100 dark:hover:bg-blue-950/40 transition-all text-left"
-                  >
-                    <div className="text-sm">Learn More</div>
-                    <div className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">Dive deeper into this topic</div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setInput('What should I learn next?');
-                      inputRef.current?.focus();
-                    }}
-                    className="px-4 py-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 text-green-900 dark:text-green-100 font-semibold hover:bg-green-100 dark:hover:bg-green-950/40 transition-all text-left"
-                  >
-                    <div className="text-sm">Next Lesson</div>
-                    <div className="text-xs text-green-700 dark:text-green-300 mt-0.5">Move to the next topic</div>
-                  </button>
-                </div>
-
-                {/* Q&A Input */}
-                <div>
-                  <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-2 block">
-                    Ask a specific question
-                  </label>
-                  <form onSubmit={handleSubmit} className="flex gap-2">
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="e.g., How does this work in production?"
-                      className="flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={loading}
-                    />
-                    <button
-                      type="submit"
-                      disabled={loading || !input.trim()}
-                      className="flex items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
-                  </form>
-                </div>
-              </div>
-
-              {/* Previous messages if any */}
-              {messages.slice(0, -1).map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex gap-2 sm:gap-4 ${
-                    msg.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
+              {/* Navigation Header */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={resetSession}
+                  className="px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white transition-colors"
                 >
-                  {msg.role === 'assistant' && (
-                    <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600">
-                      <Bot className="h-5 w-5 text-white" />
-                    </div>
-                  )}
+                  ← Back to Home
+                </button>
+                <span className="text-xs font-mono text-zinc-600 dark:text-zinc-400">
+                  Lesson in progress
+                </span>
+              </div>
 
-                  <div
-                    className={`group relative max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 sm:px-5 sm:py-4 ${
-                      msg.role === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 border border-zinc-200 dark:border-zinc-700 shadow-sm'
-                    }`}
-                  >
-                    <MarkdownMessage content={msg.content} isUser={msg.role === 'user'} />
+              {/* Lesson Content - Show all messages */}
+              <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-6 sm:p-8">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className="mb-6 last:mb-0">
+                    {msg.role === 'user' && idx > 0 && (
+                      <div className="mb-3 pb-3 border-b-2 border-black dark:border-white">
+                        <span className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                          Your question:
+                        </span>
+                        <p className="font-mono text-sm mt-1">{msg.content}</p>
+                      </div>
+                    )}
+                    {msg.role === 'assistant' && (
+                      <MarkdownMessage content={msg.content} isUser={false} />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Lesson Actions - Clearer UI */}
+              {!loading && (
+                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-4">Continue learning</h4>
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <button
+                      onClick={async () => {
+                        if (loading) return; // Prevent double-clicks
+                        const userMessage: Message = { role: 'user', content: 'Can you give me a practical example showing how to use this in a real project?' };
+                        const updatedMessages = [...messages, userMessage];
+                        setMessages(updatedMessages);
+                        setLoading(true);
+                        setError(null);
+
+                        try {
+                          const systemPrompt = buildSystemPrompt();
+                          const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              messages: [
+                                { role: 'system', content: systemPrompt },
+                                ...updatedMessages,
+                              ],
+                            }),
+                          });
+
+                          if (!response.ok) throw new Error(`Error: ${response.status}`);
+                          if (!response.body) throw new Error('No response body');
+
+                          const reader = response.body.getReader();
+                          const decoder = new TextDecoder();
+                          let content = '';
+
+                          setMessages([...updatedMessages, { role: 'assistant', content: '' }]);
+                          setLoading(false);
+
+                          while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            const chunk = decoder.decode(value, { stream: true });
+                            content += chunk;
+                            setMessages([...updatedMessages, { role: 'assistant', content }]);
+                          }
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : 'Failed to send message');
+                          setMessages(updatedMessages);
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                      className="px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      show example
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (loading) return; // Prevent double-clicks
+                        const userMessage: Message = { role: 'user', content: 'What should I learn next?' };
+                        const updatedMessages = [...messages, userMessage];
+                        setMessages(updatedMessages);
+                        setLoading(true);
+                        setError(null);
+
+                        try {
+                          const systemPrompt = buildSystemPrompt();
+                          const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              messages: [
+                                { role: 'system', content: systemPrompt },
+                                ...updatedMessages,
+                              ],
+                            }),
+                          });
+
+                          if (!response.ok) throw new Error(`Error: ${response.status}`);
+                          if (!response.body) throw new Error('No response body');
+
+                          const reader = response.body.getReader();
+                          const decoder = new TextDecoder();
+                          let content = '';
+
+                          setMessages([...updatedMessages, { role: 'assistant', content: '' }]);
+                          setLoading(false);
+
+                          while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            const chunk = decoder.decode(value, { stream: true });
+                            content += chunk;
+                            setMessages([...updatedMessages, { role: 'assistant', content }]);
+                          }
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : 'Failed to send message');
+                          setMessages(updatedMessages);
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                      className="px-4 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-zinc-800 hover:text-white dark:hover:bg-zinc-200 dark:hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      next lesson →
+                    </button>
                   </div>
 
-                  {msg.role === 'user' && (
-                    <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 dark:bg-zinc-100">
-                      <User className="h-5 w-5 text-white dark:text-zinc-900" />
-                    </div>
-                  )}
+                  {/* Custom Question Input */}
+                  <div className="border-t-2 border-black dark:border-white pt-6">
+                    <label className="text-xs font-mono uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2 block">
+                      or ask your own question
+                    </label>
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!input.trim() || loading) return;
+
+                      const userMessage: Message = { role: 'user', content: input };
+                      const updatedMessages = [...messages, userMessage];
+                      setMessages(updatedMessages);
+                      setInput('');
+                      setLoading(true);
+                      setError(null);
+
+                      try {
+                        const systemPrompt = buildSystemPrompt();
+                        const response = await fetch('/api/chat', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            messages: [
+                              { role: 'system', content: systemPrompt },
+                              ...updatedMessages,
+                            ],
+                          }),
+                        });
+
+                        if (!response.ok) throw new Error(`Error: ${response.status}`);
+                        if (!response.body) throw new Error('No response body');
+
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+                        let content = '';
+
+                        setMessages([...updatedMessages, { role: 'assistant', content: '' }]);
+                        setLoading(false);
+
+                        while (true) {
+                          const { done, value } = await reader.read();
+                          if (done) break;
+                          const chunk = decoder.decode(value, { stream: true });
+                          content += chunk;
+                          setMessages([...updatedMessages, { role: 'assistant', content }]);
+                        }
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Failed to send message');
+                        setMessages(updatedMessages);
+                      } finally {
+                        setLoading(false);
+                        inputRef.current?.focus();
+                      }
+                    }} className="flex gap-2">
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="e.g., explain like I'm 5"
+                        className="flex-1 border-2 border-black dark:border-white bg-white dark:bg-black px-4 py-3 text-sm font-mono placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white ring-offset-2"
+                        disabled={loading}
+                      />
+                      <button
+                        type="submit"
+                        disabled={loading || !input.trim()}
+                        className="px-4 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-zinc-800 hover:text-white dark:hover:bg-zinc-200 dark:hover:text-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        →
+                      </button>
+                    </form>
+                  </div>
                 </div>
-              ))}
+              )}
 
               {loading && (
                 <div className="flex gap-2 sm:gap-4 justify-start">
-                  <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600">
-                    <Bot className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                  <div className="max-w-[90%] sm:max-w-[85%] md:max-w-[75%] px-3 py-2.5 sm:px-4 sm:py-3 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white font-mono">
                     <LoadingDots />
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="border-2 border-red-500 bg-red-50 dark:bg-red-950/20 p-4">
+                  <div className="font-mono">
+                    <div className="font-bold text-sm mb-1 text-red-900 dark:text-red-200">[error]</div>
+                    <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
                   </div>
                 </div>
               )}
@@ -1246,24 +1350,24 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
               }`}
             >
               {msg.role === 'assistant' && (
-                <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600">
-                  <Bot className="h-5 w-5 text-white" />
+                <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black">
+                  <span className="text-xs font-mono font-bold">AI</span>
                 </div>
               )}
 
               <div
-                className={`group relative max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 sm:px-5 sm:py-4 ${
+                className={`group relative max-w-[90%] sm:max-w-[85%] md:max-w-[75%] px-4 py-3 sm:px-5 sm:py-4 border-2 ${
                   msg.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 border border-zinc-200 dark:border-zinc-700 shadow-sm'
+                    ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                    : 'bg-white dark:bg-black text-zinc-900 dark:text-zinc-50 border-black dark:border-white'
                 }`}
               >
                 <MarkdownMessage content={msg.content} isUser={msg.role === 'user'} />
               </div>
 
               {msg.role === 'user' && (
-                <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 dark:bg-zinc-100">
-                  <User className="h-5 w-5 text-white dark:text-zinc-900" />
+                <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center border-2 border-black dark:border-white bg-black dark:bg-white">
+                  <span className="text-xs font-mono font-bold text-white dark:text-black">U</span>
                 </div>
               )}
             </div>
@@ -1271,10 +1375,10 @@ Keep explanations clear and concise. Focus on understanding over memorization. U
 
           {loading && (
             <div className="flex gap-2 sm:gap-4 justify-start">
-              <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600">
-                <Bot className="h-5 w-5 text-white" />
+              <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black">
+                <span className="text-xs font-mono font-bold">AI</span>
               </div>
-              <div className="max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+              <div className="max-w-[90%] sm:max-w-[85%] md:max-w-[75%] px-3 py-2.5 sm:px-4 sm:py-3 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white font-mono">
                 <LoadingDots />
               </div>
             </div>

@@ -10,7 +10,8 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Application error:', error);
+    // Log the error to an error reporting service
+    console.error('Code page error:', error);
   }, [error]);
 
   return (
@@ -18,10 +19,10 @@ export default function Error({
       <div className="max-w-md w-full border-2 border-black dark:border-white p-8 text-center">
         <h2 className="text-2xl font-bold mb-4 font-mono">[error]</h2>
         <p className="text-sm mb-6 text-zinc-600 dark:text-zinc-400">
-          Something went wrong with the application.
+          Something went wrong loading the code session.
         </p>
         <p className="text-xs font-mono mb-6 text-zinc-500 dark:text-zinc-500 break-all">
-          {error.message || 'An unexpected error occurred'}
+          {error.message}
         </p>
         <div className="flex gap-3">
           <button

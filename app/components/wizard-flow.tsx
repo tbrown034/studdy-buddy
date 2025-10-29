@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 
 type WizardStep = {
@@ -30,6 +31,7 @@ export function WizardFlow({
   showProgressBar = true,
   reviewStep
 }: WizardFlowProps) {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -46,7 +48,9 @@ export function WizardFlow({
   };
 
   const goBack = () => {
-    if (currentStep > 0) {
+    if (currentStep === 0) {
+      router.push('/');
+    } else if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
       setShowPrompt(false);
     }
@@ -165,16 +169,15 @@ export function WizardFlow({
       <div className="flex gap-3">
         <button
           onClick={goBack}
-          disabled={currentStep === 0}
-          className="px-6 py-3 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black dark:disabled:hover:bg-black dark:disabled:hover:text-white"
+          className="px-6 py-3 border-2 border-black dark:border-white bg-white dark:bg-black font-mono font-bold hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-900 dark:hover:text-white transition-colors"
         >
-          ← Back
+          ← {currentStep === 0 ? 'Home' : 'Back'}
         </button>
 
         <button
           onClick={goNext}
           disabled={!canGoNext}
-          className="flex-1 px-6 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white dark:disabled:hover:bg-white dark:disabled:hover:text-black"
+          className="flex-1 px-6 py-3 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-bold hover:bg-zinc-800 hover:text-white dark:hover:bg-zinc-200 dark:hover:text-black disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white dark:disabled:hover:bg-white dark:disabled:hover:text-black transition-colors"
         >
           {isLastStep ? completionButtonText : 'Continue →'}
         </button>

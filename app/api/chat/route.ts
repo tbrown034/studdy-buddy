@@ -81,6 +81,23 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
+    // Parse and validate request first
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error('[JSON Parse Error]', {
+        timestamp: new Date().toISOString(),
+        error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
+      });
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body.' },
+        { status: 400 }
+      );
+    }
+
+    const { messages } = body;
+
     // Rate limiting
     const rateLimitKey = getRateLimitKey(req);
     const { allowed, remaining } = checkRateLimit(rateLimitKey);
@@ -98,11 +115,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Parse and validate request
-    const body = await req.json();
-    const { messages } = body;
-
     if (!validateMessages(messages)) {
+      console.error('[Validation Error]', {
+        timestamp: new Date().toISOString(),
+        messagesReceived: messages,
+        isArray: Array.isArray(messages),
+        length: Array.isArray(messages) ? messages.length : 'N/A',
+      });
       return NextResponse.json(
         { error: 'Invalid request format or message too long.' },
         { status: 400 }

@@ -35,22 +35,22 @@ export default function AboutPage() {
             <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-8">
               <div className="font-mono space-y-4 text-sm sm:text-base">
                 <p>
-                  learning web development in 2025 is overwhelming. too many tabs open, documentation scattered across dozens of sites, tutorial hell, decision fatigue before you even start coding.
+                  learning web development in 2025 is a lot. google searches return outdated stack overflow threads. llm searches hallucinate methods that don&apos;t exist. tutorials are stuck in 2022. decision paralysis before you even start.
                 </p>
                 <p>
-                  i wanted something simpler. a single place to:
-                </p>
-                <ul className="list-none space-y-2 pl-4">
-                  <li>→ pick your tech stack</li>
-                  <li>→ choose your learning style (lessons, flashcards or tests)</li>
-                  <li>→ get ai-guided practice</li>
-                  <li>→ reference curated docs</li>
-                </ul>
-                <p>
-                  no bloat, no distractions, no bullshit. just structured learning at your own pace.
+                  so i made myself this simple wrapper with clean ui/ux where i can learn and bounce ideas when i&apos;m not building.
                 </p>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  built this for myself. sharing it in case it helps you too.
+                  it&apos;s{' '}
+                  <a
+                    href="https://github.com/tbrown034/studdy-buddy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    open source
+                  </a>
+                  . contributions welcome if it helps you too.
                 </p>
               </div>
             </div>
@@ -145,9 +145,6 @@ export default function AboutPage() {
                     <span>community flashcard decks - share and learn together</span>
                   </li>
                 </ul>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 pt-2">
-                  no promises, no roadmap, no timelines.
-                </p>
               </div>
             </div>
           </div>
@@ -160,7 +157,7 @@ export default function AboutPage() {
             <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-8">
               <div className="font-mono space-y-6">
                 <p className="text-sm">
-                  this is an open source personal project. if you find it useful, consider contributing.
+                  this is open source. feel free to contribute or fork it.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <a
@@ -190,35 +187,17 @@ export default function AboutPage() {
                   >
                     trevor brown
                   </a>
-                  , learning and building in public.
+                  .
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Version Info */}
-          <div>
-            <h2 className="text-sm uppercase tracking-wider mb-6 text-zinc-600 dark:text-zinc-400">
-              Version 1.0
-            </h2>
-            <div className="border-2 border-black dark:border-white bg-white dark:bg-black p-8">
-              <div className="font-mono space-y-4 text-sm">
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  three-day sprint. claude code assisted.
-                </p>
-                <div className="flex items-center gap-4 pt-2">
-                  <span className="text-xs text-zinc-500 dark:text-zinc-500">
-                    released: october 2025
-                  </span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-500">
-                    •
-                  </span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-500">
-                    mvp status: shipped
-                  </span>
-                </div>
-              </div>
-            </div>
+          {/* Release Info */}
+          <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800">
+            <p className="text-xs font-mono text-zinc-500 dark:text-zinc-500">
+              released: october 2025
+            </p>
           </div>
         </div>
       </div>
