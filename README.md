@@ -104,3 +104,4 @@ See `SECURITY.md` for detailed cost breakdown.
 
 MIT
 # studdy-buddy
+
